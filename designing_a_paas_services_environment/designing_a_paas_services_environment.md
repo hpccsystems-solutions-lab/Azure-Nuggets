@@ -2,7 +2,7 @@
 
 Azure PaaS services like Azure App Service, Azure Database Service, etc., offer several advantages compared to deploying and maintaining virtual machines or container orchestration tools like Kubernetes. Patching, redundancy, high availability, and auto-scaling are the primary advantages. Hence, reducing (drastically) the effort spent on operations maintenance. 
 
-NOTE: *Most PaaS services by vendors like Azure and AWS support common architecture layers - database, web, storage, etc. -  that support technologies like MySQL, NodeJS, Spring Boot, and Blob Storage. There is enough abstraction built in to eliminate vendor lock-in. In contrast, Azure Logic App is an example of an Azure proprietary PaaS service.*
+**TIP**: *Most PaaS services by vendors like Azure and AWS support common architecture layers - database, web, storage, etc. -  that support technologies like MySQL, NodeJS, Spring Boot, and Blob Storage. There is enough abstraction built in to eliminate vendor lock-in. In contrast, Azure Logic App is an example of an Azure proprietary PaaS service.*
 
 This article introduces design considerations for setting up a secure environment that uses **multi-tenant PaaS services**.
 
@@ -14,7 +14,7 @@ Azure PaaS services come in two flavors, single-tenant or multi-tenant.
 
 ![VNet Residing Application](vnet-stenant-app.jpg)
 
-Not to worry, we will discuss VNet, Subnet, Service Endpoint, and Private Link in the following sections. 
+As indicated in the diagram, the ASE is deployed into the VNet because the single-tenant infrastructure for ASE is dedicated to the subscription. We will discuss new terms such as VNet, Subnet, Service Endpoint, and Private Link in the following sections. 
 
 **Multi-tenant PaaS services** exist at Azure’s global network infrastructure and are shared across subscriptions (and hence customers). Azure App Service, Azure SQL Service, Azure Storage Service, Azure Key Vault are examples of multi-tenant PaaS services. The diagram below shows how a multi-tenant App Service is integrated into a subscriptions VNet using Azure's regional VNet integration feature.
 
@@ -35,14 +35,14 @@ Since Azure dedicates infrastructure resources to run single-tenant services, co
 
 So, how do we leverage all the benefits of PaaS services and cloud-optimized architectures and still be very secure? Security is all about upfront planning, and it starts with designing an isolation boundary for the resources we set up to interact with each other. This is no different from on-premise design thinking. That is DMZ to Firewall to Secure Network. On Azure, this secure network is called a Virtual Network. 
 
-**NOTE**: *If you are tempted to start an Azure project without a VNet, **DONT**.*  
+**TIP**: *If you are tempted to start an Azure project without a VNet, **DONT**.*  
 
 
 ### Virtual Network
 
 A Virtual Network, or VNet, is a logical isolation of subscriptions resources. The VNet is dedicated to a subscription. To provision a VNet, Azure creates a software network abstraction on Azure’s cloud infrastructure. This VNet is private but can be linked to other VNets on Azure and on-premises infrastructure. The VNet follows IP routing principles for connecting resources within the VNet. Hence, the VNet has one or more address spaces (CIDR) associated with it. The address space is further divided into subnets. Subnets reserves address space for a category of resources. For example, you can have an address space reserved for VMs (VM Subnet) that is separate from an address space for a database (Database subnet).     
 
-**NOTE**: *If you are associating (via regional VNet integration or deploying single-tenant services) PaaS services within the VNet, allocate enough address space based on the PaaS services requirement. We will cover some of this in the following sections. Defining and designing the subnets is the #1 best practice that will lead to developing a secure application. It is analogous to designing a kitchen cabinet with enough shelves and drawers to store everything in an organized manner.*  
+**TIP**: *If you are associating (via regional VNet integration or deploying single-tenant services) PaaS services within the VNet, allocate enough address space based on the PaaS services requirement. We will cover some of this in the following sections. Defining and designing the subnets is the #1 best practice that will lead to developing a secure application. It is analogous to designing a kitchen cabinet with enough shelves and drawers to store everything in an organized manner.*  
 
 ### CIDR
 
@@ -52,13 +52,13 @@ Classless Internet Domain Routing (CIDR) notation is used to represent the IP ad
 
 A SubNet is a reserved sub space in the VNet. Think of it as the shelves and drawers in a cabinet. Each SubNet has its own exclusive address space in the VNet that does not overlap with another SubNet in the same VNet. SubNets provide a facility to organize the VNet into function catogories. For example, you can reseve a SubNet for databases, one for VMs, one for App Services and so on. Alternatively, you can organize the SubNets into functional parts like Integration, Frontend Services, API services, etc. 
 
-**NOTE**: *An Azure SubNet reserves 5 addresses for the SubNet's internal functioning. Hence, an example SubNet with 10.1.0.0/32 or 10.1.0.0/31 it will not work. You will need a minimum of 10.1.0.0/30.* 
+**TIP**: *An Azure SubNet reserves 5 addresses for the SubNet's internal functioning. Hence, an example SubNet with 10.1.0.0/32 or 10.1.0.0/31 it will not work. You will need a minimum of 10.1.0.0/30.* 
 
 ![VNet Residing Application](vnet-and-subnet.jpg)
 
 In the above diagram, the VNet has an address space of 10.1.0.0/16 which is 65536 possible addresses. In this address space there are two SubNets with 32 addresses each. Remember that out of the 32, 5 is reserved by Azure (for the SubNets router/gateway). Hence we will have 27 addesses for our use. The following sections about regional VNet integration will cover how we use these SubNets.
 
-**NOTE**: *While new address spaces can be added to a VNet with no problems, SubNets expansions are more delicate. For SubNet address space expansions, ensure that existing resources in the SubNet are moved to another SubNet and then change the address space. In our example, the subnet cushion is deliberately tight (27 addresses) to explain the concepts. For your designs, consider the longer term scalability of your application before allocating an address space for a SubNet.*
+**TIP**: *While new address spaces can be added to a VNet with no problems, SubNets expansions are more delicate. For SubNet address space expansions, ensure that existing resources in the SubNet are moved to another SubNet and then change the address space. In our example, the subnet cushion is deliberately tight (27 addresses) to explain the concepts. For your designs, consider the longer term scalability of your application before allocating an address space for a SubNet.*
 
 ## Securing Outgoing Traffic with VNet integration for Multi-Tenant PaaS services
 
@@ -72,18 +72,43 @@ As shown, the API App has requests that are both incoming and outgoing. Azure pr
 
 ![VNet Integration Example](vnet-integration-example.jpg)
 
-**NOTE**: *It is important to design your PaaS systems with VNet integration in the plans. As you can see in the the digram, the integration  1) Provides the facility to link to other PaaS services via Service Endpoints 2) Allows calls to other resources in the same VNet via IPs 3) Allows call to on premises resources via the virtual network gateway.*
+**TIP**: *It is important to design your PaaS systems with VNet integration in the plans. As you can see in the the digram, the integration  1) Provides the facility to link to other PaaS services via Service Endpoints 2) Allows calls to other resources in the same VNet via IPs 3) Allows call to on premises resources via the virtual network gateway.*
 
 ## Securing Incoming Traffic with Private Links or Service Endpoints
 
 As discussed, Regional VNet integration (via deligation) isolates the outgoing traffic from a Multi-Tenant PaaS service. For securing incoming traffic, Azure provides us two methods. 
 
-### Service Endpoints
+### Service Endpoint
 
-A Service Endpoint configures a PaaS service to accept (incoming) requests from an authorized VNet. It is automatic network rule enforcement to route and accept only certain requests. While Azure optimizes the path to access the PaaS service, the PaaS service will need to have its public endpoint exposed on the Azure network. 
+A Service Endpoint configures a PaaS service to accept (incoming) requests from an allowed VNet. It is automatic network rule enforcement to route and accept only certain requests. While Azure optimizes the path to access the PaaS service defined by the Service Endpoint, the endpoint remains as a publicly routable IP address.
 
-A Service Endpoint is a good option but eleminating the public endpoint reduces a threat vector. In addition, another disadvantage of service endpoint is that it works in conjunction with regional VNet integration. If a PaaS service does not support regional VNet integration, then Service Endpoints cannot be used in its delegated VNet. 
+A Service Endpoint is a good option but eliminating the public access gets rid of a threat vector. In addition, another disadvantage of service endpoint is that it works with regional VNet integration. If a PaaS service does not support regional VNet integration, then Service Endpoints cannot be used in its delegated VNet.
 
-### Private Endpoints and Private Links
+### Private Endpoint
 
-To eleminate the issues with Service Endpoints, Azure introduced Private Endpoints and Private Links. A Private Endpoint is an IP that is allocated in the private VNet and is used to route incoming traffic to a PaaS service. A IP that represents the service in the VNet. With the use of a Private Endpoint, Azure removes access to the PaaS services Public Endpoint (IP). Hence, isolating the (incoming) access to the PaaS service to the VNet. In addition to the Private Endpoint, a private DNS server is used to publish a link that maps to the Private Endpoint. This is called a Private Link.   
+To eliminate the issues with Service Endpoints, Azure introduced Private Endpoints and Private Links. A Private Endpoint is an IP that is allocated in the private VNet and is used to route incoming traffic to a PaaS service. A IP that represents the service in the VNet. With the use of a Private Endpoint, Azure removes access to the PaaS services Public IP. Hence, isolating the (incoming) access to the PaaS service to the VNet.
+
+### Private Link Service
+
+Private Endpoint is mapped to a PaaS service that supports Private Link Service. Any service that is run behind an Azure Standard Load Balancer can be enabled for Private Link access. For a list of Azure PaaS services that support private links, navigate to: https://docs.microsoft.com/en-us/azure/private-link/private-link-service-overview. In addition, custom services can be enabled for Private Link access.
+
+![VNet Integration with Private Links Example](vnet-integration-with-private-links.jpg)
+
+In the above diagarm you can see how Private Endpoints and Private Links eleminates the need for exposing the PaaS services that the application uses publicly. With a combination of VNet, regional VNet integration and Private Endpoints Azure has provided a Mult-Tenant PaaS environment that is isolated and secure. 
+
+## Key Takeaways
+
+1) Consider Azure’s PaaS services for any implementation without the fear of vendor lock in, etc. As explained earlier, in most cases, coding language abstractions built into the PaaS services eliminate lock-in. In addition, PaaS services reduce or eliminate the cost of operational maintenance of the environments. Hence, the focus can be dedicated to innovation and application development.
+
+2) PaaS services provide the same level of security as IaaS. In fact, it can be argued that PaaS services provide better security because Microsoft has invested a lot in developing the PaaS infrastructure. With IaaS type of implementations, a lot of security requirements around patching, network isolation, performance, etc. fall back onto the teams.
+
+3) Begin designing for an environment by planning for the Virtual Network and SubNets. This is analogous to building a house with rooms and bathrooms. If you do not have breakdown, chaos will ensure sooner than later.
+
+4) Use Regional VNet Integration to delegate outgoing traffic to the applications VNet.
+
+5) Use Private End Points and Private Links to isolate the inbound traffic to the PaaS services.
+
+Microsoft has spent endless hours and resources to develop the PaaS services infrastructure with the goal of simplifying deployments, enhancing security and providing endless scalability/redundancy options. It is in our best interest to take advantage of these facilities to develop great cloud ready applications.
+
+
+
