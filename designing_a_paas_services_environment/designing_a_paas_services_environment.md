@@ -82,11 +82,11 @@ As discussed, Regional VNet integration (via deligation) isolates the outgoing t
 
 A Service Endpoint configures a PaaS service to accept (incoming) requests from an allowed VNet. It is automatic network rule enforcement to route and accept only certain requests. While Azure optimizes the path to access the PaaS service defined by the Service Endpoint, the endpoint remains as a publicly routable IP address.
 
-A Service Endpoint is a good option but eliminating the public access gets rid of a threat vector. In addition, another disadvantage of service endpoint is that it works with regional VNet integration. If a PaaS service does not support regional VNet integration, then Service Endpoints cannot be used in its delegated VNet.
+A Service Endpoint is a good option but eliminating the public access gets rid of a threat vector. In addition, another disadvantage of Service Endpoint is that it works (only) with regional VNet integration. If a PaaS service does not support regional VNet integration, then Service Endpoint is not an option.
 
 ### Private Endpoint
 
-To eliminate the issues with Service Endpoints, Azure introduced Private Endpoints and Private Links. A Private Endpoint is an IP that is allocated in the private VNet and is used to route incoming traffic to a PaaS service. A IP that represents the service in the VNet. With the use of a Private Endpoint, Azure removes access to the PaaS services Public IP. Hence, isolating the (incoming) access to the PaaS service to the VNet.
+To eliminate the issues with Service Endpoints, Azure introduced Private Endpoints and Private Links. A Private Endpoint is an IP that is allocated in the private VNet and is used to route incoming traffic to a PaaS service. A IP that represents the PaaS service in the VNet. With the use of a Private Endpoint, Azure removes access to the PaaS services Public IP. Hence, isolating the (incoming) access to the PaaS service to the VNet.
 
 ### Private Link Service
 
@@ -100,9 +100,9 @@ In the above diagarm you can see how Private Endpoints and Private Links elemina
 
 1) Consider Azure’s PaaS services for any implementation without the fear of vendor lock in, etc. As explained earlier, in most cases, coding language abstractions built into the PaaS services eliminate lock-in. In addition, PaaS services reduce or eliminate the cost of operational maintenance of the environments. Hence, the focus can be dedicated to innovation and application development.
 
-2) PaaS services provide the same level of security as IaaS. In fact, it can be argued that PaaS services provide better security because Microsoft has invested a lot in developing the PaaS infrastructure. With IaaS type of implementations, a lot of security requirements around patching, network isolation, performance, etc. fall back onto the teams.
+2) PaaS services provide the same level of security as IaaS. In fact, it can be argued that PaaS services provide better security because Microsoft has invested a lot in developing the PaaS infrastructure. With an IaaS (VMs, AKS) implementation, a lot of security requirements around patching, network isolation, performance, etc. fall back onto the development teams.
 
-3) Begin designing for an environment by planning for the Virtual Network and SubNets. This is analogous to building a house with rooms and bathrooms. If you do not have breakdown, chaos will ensure sooner than later.
+3) Begin designing for an environment by planning for the Virtual Network and SubNets. This is analogous to building a house with rooms and bathrooms. If you do not have a breakdown, chaos will ensure sooner than later.
 
 4) Use Regional VNet Integration to delegate outgoing traffic to the applications VNet.
 
