@@ -82,7 +82,13 @@ As discussed, Regional VNet integration (via deligation) isolates the outgoing t
 
 A Service Endpoint configures a PaaS service to accept (incoming) requests from an allowed VNet. It is automatic network rule enforcement to route and accept only certain requests. While Azure optimizes the path to access the PaaS service defined by the Service Endpoint, the endpoint remains as a publicly routable IP address.
 
-A Service Endpoint is a good option but eliminating the public access gets rid of a threat vector. In addition, another disadvantage of Service Endpoint is that it works (only) with regional VNet integration. If a PaaS service does not support regional VNet integration, then Service Endpoint is not an option.
+A Service Endpoint comes with a few drawbacks:
+
+1) It exposes a public endpoint and hence exposes a threat vector that is exploitable.
+
+2) It works (only) with regional VNet integration. If a PaaS service does not support regional VNet integration, then Service Endpoint is not an option.
+
+3) Since we configure a Service Endpoint to access the entire service (e.g. all databases that the PaaS service hosts across all subscriptions) and not a specific endpoint (e.g. a single database linked to a subscription), data exfiltration is possible. A threat actor can copy data from an official database linked to an official subscription into the VNet and then copy this data into an unofficial database linked to an unofficial subscription.
 
 ### Private Endpoint
 
