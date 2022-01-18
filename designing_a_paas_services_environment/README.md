@@ -108,13 +108,13 @@ In the above diagarm you can see how Private Endpoints and Private Links elemina
 
 2) PaaS services provide the same level of security as IaaS. In fact, it can be argued that PaaS services provide better security because Microsoft has invested a lot in developing the PaaS infrastructure. With an IaaS (VMs, AKS) implementation, a lot of security requirements around patching, network isolation, performance, etc. fall back onto the development teams.
 
-3) Begin designing for an environment by planning for the Virtual Network and SubNets. This is analogous to building a house with rooms and bathrooms. If you do not have a breakdown, chaos will ensure sooner than later.
+3) Begin designing for an environment by planning for the Virtual Network and SubNets. This is analogous to building a house with rooms and bathrooms. If you do not plan for the components, chaos will ensure sooner than later.
 
 4) Use Regional VNet Integration to delegate outgoing traffic to the applications VNet.
 
-5) Use Private End Points and Private Links to isolate the inbound traffic to the PaaS services.
+5) Use Private End Points and Private Links to isolate the inbound traffic to the PaaS services. Hence, avoid using Service Endpoints as they provide a backdoor for data exfilteration.
 
-Microsoft has spent many hours and resources to develop the PaaS services infrastructure with the goal of simplifying deployments, enhancing security and providing automatic scalability/redundancy options. It is in all our best interest to take advantage of these facilities to develop great cloud ready applications.
+Microsoft has spent many hours and resources to develop the PaaS services infrastructure with the goal of simplifying deployments, enhancing security and providing automatic scalability/redundancy options. It is in our best interest to take advantage of these facilities to develop great cloud ready applications.
 
 
 
