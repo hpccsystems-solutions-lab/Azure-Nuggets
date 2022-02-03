@@ -9,7 +9,7 @@ The code repository for the project can be found [here](https://github.com/hpccs
 
 ## STEP 0: Initialze main.tf 
 
-```json
+```
 module "subscription" {
   source = "github.com/Azure-Terraform/terraform-azurerm-subscription-data.git?ref=v1.0.0"
   subscription_id = var.subscription_id
@@ -42,7 +42,7 @@ module "metadata"{
 
 A Resource Group is a logical container that will hold all the resources that we create for the application. 
 
-```json
+```
 module "resource-group" {
   source = "github.com/Azure-Terraform/terraform-azurerm-resource-group"
   
