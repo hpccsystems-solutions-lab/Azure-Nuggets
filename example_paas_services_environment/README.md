@@ -60,7 +60,7 @@ For starters, let us create a Virtual Network that is used to secure the resourc
 
 
 
-```json
+```
 module "virtual_network" {
   source = "github.com/Azure-Terraform/terraform-azurerm-virtual-network"
 
